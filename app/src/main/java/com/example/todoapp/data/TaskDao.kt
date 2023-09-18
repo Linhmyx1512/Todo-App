@@ -1,10 +1,10 @@
 package com.example.todoapp.data
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -17,5 +17,8 @@ interface TaskDao {
     suspend fun insertTask(task: Task): Long
 
     @Query("DELETE FROM Task WHERE taskId == :taskId")
-    suspend fun deleteTask(taskId: Int) : Int
+    suspend fun deleteTask(taskId: Int): Int
+
+    @Update
+    suspend fun updateTask(task: Task): Int
 }

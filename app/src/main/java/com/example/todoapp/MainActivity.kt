@@ -16,9 +16,6 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
-    private val taskViewModel: TaskViewModel by lazy {
-        ViewModelProvider(this)[TaskViewModel::class.java]
-    }
     
     private lateinit var navigationView: BottomNavigationView
     private lateinit var navController: NavController

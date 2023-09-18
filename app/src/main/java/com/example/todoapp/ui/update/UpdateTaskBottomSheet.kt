@@ -1,19 +1,30 @@
-package com.example.todoapp.ui.add
+package com.example.todoapp.ui.update
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import com.example.todoapp.databinding.DialogAddTaskBinding
+import com.example.todoapp.data.Task
+import com.example.todoapp.databinding.DialogUpdateTaskBinding
+import com.example.todoapp.ui.add.CallBack
 import com.example.todoapp.utils.validateEditText
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Date
 
 
-class AddTaskBottomSheet(private val callBack: CallBack) : BottomSheetDialogFragment() {
+class UpdateTaskBottomSheet(private val callBack: CallBack) : BottomSheetDialogFragment() {
 
-    private lateinit var binding: DialogAddTaskBinding
+    private lateinit var task: Task
+    private lateinit var binding: DialogUpdateTaskBinding
+
+
+    companion object {
+        fun newInstance(task: Task, callBack: CallBack) = UpdateTaskBottomSheet(callBack).apply {
+            this.task = task
+        }
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,20 +35,28 @@ class AddTaskBottomSheet(private val callBack: CallBack) : BottomSheetDialogFrag
                 dialog?.findViewById(com.google.android.material.R.id.design_bottom_sheet)
             frameLayout?.setBackgroundResource(android.R.color.background_light)
         }
-        binding = DialogAddTaskBinding.inflate(inflater, container, false)
+        binding = DialogUpdateTaskBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setPropertyToDialog()
         setOnClickListener()
+    }
+
+    private fun setPropertyToDialog() {
+        binding.taskNameEdt.setText(task.title)
+        binding.taskDescriptionEdt.setText(task.description)
+        binding.showTime.text = task.dueTime.toString()
+        binding.showPriority.text = task.priority
     }
 
     private fun setOnClickListener() {
 
-        // Save new task
-        val btnAdd = binding.btnAdd
-        btnAdd.setOnClickListener {
+        // Save edit task
+        val btnSave = binding.btnSave
+        btnSave.setOnClickListener {
             val edtName = binding.taskNameEdt
             val edtNameL = binding.taskNameLayout
             val edtDescription = binding.taskDescriptionEdt
@@ -54,8 +73,4 @@ class AddTaskBottomSheet(private val callBack: CallBack) : BottomSheetDialogFrag
             }
         }
     }
-}
-
-interface CallBack {
-    fun save(name: String, description: String, time: Date, priority: String)
 }

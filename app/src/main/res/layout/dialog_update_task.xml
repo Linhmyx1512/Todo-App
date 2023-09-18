@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_rounded_corner"
     android:elevation="4dp"
-    tools:context=".ui.add.AddTaskBottomSheet">
+    tools:context=".ui.update.UpdateTaskBottomSheet">
 
     <com.google.android.material.bottomsheet.BottomSheetDragHandleView
         android:id="@+id/drag_handle"
@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="New task"
+        android:text="Update task"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -214,17 +214,16 @@
         app:layout_constraintTop_toBottomOf="@id/btn_workspace" />
 
     <Button
-        android:id="@+id/btn_add"
+        android:id="@+id/btn_save"
         style="@style/Widget.Material3.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Add"
+        android:text="Save"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divide4" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

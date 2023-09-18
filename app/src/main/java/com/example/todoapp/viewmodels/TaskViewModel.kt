@@ -19,4 +19,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteTask(taskId: Int): MutableLiveData<Resource<Int>> {
         return taskRepository.deleteTask(taskId)
     }
+
+    fun updateTask(task: Task): MutableLiveData<Resource<Int>> {
+        return taskRepository.updateTask(task)
+    }
 }

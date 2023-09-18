@@ -11,6 +11,7 @@ import com.example.todoapp.data.Task
 import com.example.todoapp.databinding.FragmentAllTaskBinding
 import com.example.todoapp.ui.add.AddTaskBottomSheet
 import com.example.todoapp.ui.add.CallBack
+import com.example.todoapp.ui.update.UpdateTaskBottomSheet
 import com.example.todoapp.utils.Status
 import com.example.todoapp.utils.longToastShow
 import com.example.todoapp.viewmodels.TaskViewModel
@@ -23,48 +24,90 @@ import java.util.Date
 class AllTaskFragment : Fragment() {
 
     private lateinit var taskBinding: FragmentAllTaskBinding
+    private lateinit var taskRecyclerViewAdapter: TaskRecyclerViewAdapter
 
     private val taskViewModel: TaskViewModel by lazy {
         ViewModelProvider(this)[TaskViewModel::class.java]
     }
 
-    private val taskRecyclerViewAdapter: TaskRecyclerViewAdapter by lazy {
-        TaskRecyclerViewAdapter { position, task ->
-            taskViewModel
-                .deleteTask(task.id)
-                .observe(this) {
-                    when (it.status) {
-                        Status.SUCCESS -> {
-                            if (it.data != -1) {
-                                requireContext().longToastShow("Task deleted successfully")
-                            }
-                        }
-
-                        Status.ERROR -> {
-                            it.message?.let { it1 ->
-                                requireContext().longToastShow(it1)
-                            }
-                        }
-                    }
-                }
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         taskBinding = FragmentAllTaskBinding.inflate(layoutInflater, container, false)
-        taskBinding.listTask.adapter = taskRecyclerViewAdapter
 
         return taskBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        taskBinding = FragmentAllTaskBinding.bind(view)
+        setUpTaskRecyclerViewAdapter()
+        taskBinding.listTask.adapter = taskRecyclerViewAdapter
+
         callGetTaskList()
         setOnClickListener()
 
+    }
+
+    private fun setUpTaskRecyclerViewAdapter() {
+        taskRecyclerViewAdapter = TaskRecyclerViewAdapter { type, position, task ->
+            if (type == "delete") {
+                taskViewModel
+                    .deleteTask(task.id)
+                    .observe(viewLifecycleOwner) {
+                        when (it.status) {
+                            Status.SUCCESS -> {
+                                if (it.data != -1) {
+                                    requireContext().longToastShow("Task deleted successfully")
+                                }
+                            }
+
+                            Status.ERROR -> {
+                                it.message?.let { it1 ->
+                                    requireContext().longToastShow(it1)
+                                }
+                            }
+                        }
+                    }
+            } else if (type == "update") {
+                UpdateTaskBottomSheet.newInstance(task, object : CallBack {
+                    override fun save(
+                        name: String,
+                        description: String,
+                        time: Date,
+                        priority: String
+                    ) {
+                        val updateTask = Task(
+                            0,
+                            name.trim(),
+                            description.trim(),
+                            time,
+                            priority
+                        )
+                        taskViewModel.updateTask(updateTask).observe(viewLifecycleOwner) {
+                            when (it.status) {
+                                Status.SUCCESS -> {
+                                    if (it?.data != -1) {
+                                        requireContext().longToastShow("Task updated successfully")
+                                    }
+                                }
+
+                                Status.ERROR -> {
+                                    it.message?.let { it1 ->
+                                        requireContext().longToastShow(it1)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }).apply {
+                    show(parentFragmentManager, "Show dialog update task")
+                }
+            }
+
+        }
     }
 
 

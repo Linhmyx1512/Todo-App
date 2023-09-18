@@ -47,4 +47,16 @@ class TaskRepository(application: Application) {
             postValue(Error(e.message.toString()))
         }
     }
+
+    fun updateTask(task: Task) = MutableLiveData<Resource<Int>>().apply {
+        try {
+            CoroutineScope(Dispatchers.IO).launch {
+                val result = taskDao.updateTask(task)
+                postValue(Success(result))
+            }
+        } catch (e: Exception) {
+            postValue(Error(e.message.toString()))
+        }
+    }
+
 }
