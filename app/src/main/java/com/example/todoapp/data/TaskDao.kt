@@ -21,4 +21,7 @@ interface TaskDao {
 
     @Update
     suspend fun updateTask(task: Task): Int
+
+    @Query("UPDATE Task SET taskTitle=:title, description = :description, priority=:priority WHERE taskId = :taskId")
+    suspend fun updateTaskParticularField(taskId: String, title: String, description: String, priority: String): Int
 }

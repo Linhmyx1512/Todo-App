@@ -59,4 +59,23 @@ class TaskRepository(application: Application) {
         }
     }
 
+    fun updateTaskParticularField(
+        taskId: String,
+        title: String,
+        description: String,
+        priority: String
+    ) =
+        MutableLiveData<Resource<Int>>().apply {
+            try {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val result =
+                        taskDao.updateTaskParticularField(taskId, title, description, priority)
+                    postValue(Success(result))
+                }
+            } catch (e: Exception) {
+                postValue(Error(e.message.toString()))
+            }
+        }
+
+
 }

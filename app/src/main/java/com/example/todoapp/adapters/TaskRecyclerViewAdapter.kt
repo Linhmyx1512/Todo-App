@@ -30,7 +30,7 @@ class TaskRecyclerViewAdapter(
             taskName.text = task.title
             taskDescription.text = task.description
             taskTime.text =
-                SimpleDateFormat("dd-MMM-yyyy HH:mm:ss a", Locale.getDefault()).format(task.dueTime)
+                SimpleDateFormat("dd-MMM-yyyy HH:mm:ss", Locale.getDefault()).format(task.dueTime)
             taskPriority.text = task.priority
 
         }

@@ -102,11 +102,8 @@ class AllTaskFragment : Fragment() {
                             }
                         }
                     }
-                }).apply {
-                    show(parentFragmentManager, "Show dialog update task")
-                }
+                }).show(this.childFragmentManager, "Show update task dialog")
             }
-
         }
     }
 

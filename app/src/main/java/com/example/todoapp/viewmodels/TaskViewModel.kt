@@ -23,4 +23,13 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     fun updateTask(task: Task): MutableLiveData<Resource<Int>> {
         return taskRepository.updateTask(task)
     }
+
+    fun updateTaskParticularField(
+        taskId: String,
+        title: String,
+        description: String,
+        priority: String
+    ): MutableLiveData<Resource<Int>> {
+        return taskRepository.updateTaskParticularField(taskId, title, description, priority)
+    }
 }

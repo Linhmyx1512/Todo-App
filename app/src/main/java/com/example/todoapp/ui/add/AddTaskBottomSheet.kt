@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.FrameLayout
+import com.example.todoapp.R
 import com.example.todoapp.databinding.DialogAddTaskBinding
 import com.example.todoapp.utils.validateEditText
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -30,6 +32,14 @@ class AddTaskBottomSheet(private val callBack: CallBack) : BottomSheetDialogFrag
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val myAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            resources.getStringArray(R.array.priorities)
+        )
+        myAdapter.setDropDownViewResource(android.R.layout.select_dialog_singlechoice)
+        binding.showPriority.adapter = myAdapter
+
         setOnClickListener()
     }
 
@@ -41,14 +51,18 @@ class AddTaskBottomSheet(private val callBack: CallBack) : BottomSheetDialogFrag
             val edtName = binding.taskNameEdt
             val edtNameL = binding.taskNameLayout
             val edtDescription = binding.taskDescriptionEdt
-            val priority = binding.showPriority
-
+            val priority = when (binding.showPriority.selectedItemPosition) {
+                0 -> "High"
+                1 -> "Medium"
+                2 -> "Low"
+                else -> "High"
+            }
             if (validateEditText(edtName, edtNameL)) {
                 callBack.save(
                     edtName.text.toString(),
                     edtDescription.text.toString(),
                     Date(),
-                    priority.text.toString()
+                    priority
                 )
                 dismiss()
             }
