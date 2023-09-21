@@ -1,11 +1,13 @@
 package com.example.todoapp.ui.task
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
 import com.example.todoapp.adapters.TaskRecyclerViewAdapter
 import com.example.todoapp.data.Task
 import com.example.todoapp.databinding.FragmentAllTaskBinding
@@ -13,12 +15,17 @@ import com.example.todoapp.ui.add.AddTaskBottomSheet
 import com.example.todoapp.ui.add.CallBack
 import com.example.todoapp.ui.update.UpdateTaskBottomSheet
 import com.example.todoapp.utils.Status
+import com.example.todoapp.utils.StatusResult
+import com.example.todoapp.utils.StatusResult.Added
+import com.example.todoapp.utils.StatusResult.Deleted
+import com.example.todoapp.utils.StatusResult.Updated
+import com.example.todoapp.utils.hideKeyBoard
 import com.example.todoapp.utils.longToastShow
 import com.example.todoapp.viewmodels.TaskViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.util.Date
 
 
 class AllTaskFragment : Fragment() {
@@ -45,62 +52,68 @@ class AllTaskFragment : Fragment() {
         taskBinding = FragmentAllTaskBinding.bind(view)
         setUpTaskRecyclerViewAdapter()
         taskBinding.listTask.adapter = taskRecyclerViewAdapter
-
+        taskRecyclerViewAdapter.registerAdapterDataObserver(object :
+            RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                taskBinding.listTask.smoothScrollToPosition(positionStart)
+            }
+        })
         callGetTaskList()
+        taskViewModel.getTaskList()
+        statusCallback()
         setOnClickListener()
 
     }
 
-    private fun setUpTaskRecyclerViewAdapter() {
-        taskRecyclerViewAdapter = TaskRecyclerViewAdapter { type, position, task ->
-            if (type == "delete") {
-                taskViewModel
-                    .deleteTask(task.id)
-                    .observe(viewLifecycleOwner) {
-                        when (it.status) {
-                            Status.SUCCESS -> {
-                                if (it.data != -1) {
-                                    requireContext().longToastShow("Task deleted successfully")
-                                }
+    private fun statusCallback() {
+        taskViewModel
+            .statusLiveData
+            .observe(viewLifecycleOwner) {
+                when (it.status) {
+                    Status.LOADING -> {
+                    }
+
+                    Status.SUCCESS -> {
+                        when (it.data as StatusResult) {
+                            Added -> {
+                                Log.d("StatusResult", "Added")
                             }
 
-                            Status.ERROR -> {
-                                it.message?.let { it1 ->
-                                    requireContext().longToastShow(it1)
-                                }
+                            Deleted -> {
+                                Log.d("StatusResult", "Deleted")
                             }
+
+                            Updated -> {
+                                Log.d("StatusResult", "Updated")
+                            }
+                        }
+                        it.message?.let { it1 ->
+                            requireContext().longToastShow(it1)
                         }
                     }
-            } else if (type == "update") {
-                UpdateTaskBottomSheet.newInstance(task, object : CallBack {
-                    override fun save(
-                        name: String,
-                        description: String,
-                        time: Date,
-                        priority: String
-                    ) {
-                        val updateTask = Task(
-                            0,
-                            name.trim(),
-                            description.trim(),
-                            time,
-                            priority
-                        )
-                        taskViewModel.updateTask(updateTask).observe(viewLifecycleOwner) {
-                            when (it.status) {
-                                Status.SUCCESS -> {
-                                    if (it?.data != -1) {
-                                        requireContext().longToastShow("Task updated successfully")
-                                    }
-                                }
 
-                                Status.ERROR -> {
-                                    it.message?.let { it1 ->
-                                        requireContext().longToastShow(it1)
-                                    }
-                                }
-                            }
+                    Status.ERROR -> {
+                        it.message?.let { it1 ->
+                            requireContext().longToastShow(it1)
                         }
+                    }
+
+                }
+            }
+    }
+
+    private fun setUpTaskRecyclerViewAdapter() {
+        taskRecyclerViewAdapter = TaskRecyclerViewAdapter { type, position, inputTask ->
+            if (type == "delete") {
+                taskViewModel
+                    .deleteTask(inputTask.id)
+
+
+            } else if (type == "update") {
+                UpdateTaskBottomSheet.newInstance(inputTask, object : CallBack {
+                    override fun save(task: Task) {
+                        taskViewModel.updateTask(task)
                     }
                 }).show(this.childFragmentManager, "Show update task dialog")
             }
@@ -113,29 +126,9 @@ class AllTaskFragment : Fragment() {
         // Press btn add to show dialog add new task
         taskBinding.btnAdd.setOnClickListener {
             AddTaskBottomSheet(object : CallBack {
-                override fun save(name: String, description: String, time: Date, priority: String) {
-                    val newTask = Task(
-                        0,
-                        name.trim(),
-                        description.trim(),
-                        time,
-                        priority
-                    )
-                    taskViewModel.insertTask(newTask).observe(viewLifecycleOwner) {
-                        when (it.status) {
-                            Status.SUCCESS -> {
-                                if (it?.data?.toInt() != -1) {
-                                    requireContext().longToastShow("Task added successfully")
-                                }
-                            }
-
-                            Status.ERROR -> {
-                                it.message?.let { it1 ->
-                                    requireContext().longToastShow(it1)
-                                }
-                            }
-                        }
-                    }
+                override fun save(task: Task) {
+                    requireContext().hideKeyBoard(it)
+                    taskViewModel.insertTask(task)
                 }
             }).show(childFragmentManager, "Show dialog add task")
         }
@@ -143,22 +136,21 @@ class AllTaskFragment : Fragment() {
 
     private fun callGetTaskList() {
         CoroutineScope(Dispatchers.Main).launch {
-            taskViewModel.getTaskList().collect {
+            taskViewModel.taskStateFlow.collectLatest {
+                Log.d("status", it.status.toString())
                 when (it.status) {
+                    Status.LOADING -> {
+                    }
+
                     Status.SUCCESS -> {
                         it.data?.collect { taskList ->
-                            taskRecyclerViewAdapter.addAllTask(taskList)
-
+                            taskRecyclerViewAdapter.submitList(taskList)
                         }
                     }
-
                     Status.ERROR -> {
-                        it.message?.let { it1 ->
-                            requireContext().longToastShow(it1)
-                        }
+                        it.message?.let { it1 -> requireContext().longToastShow(it1) }
                     }
                 }
-
             }
         }
     }

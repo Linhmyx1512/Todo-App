@@ -14,7 +14,7 @@ data class Task(
     @ColumnInfo(name = "taskId")
     val id: Int,
     @ColumnInfo(name = "taskTitle")
-    val title: String,
+    var title: String,
     val description: String,
     val dueTime: Date,
     val priority: String

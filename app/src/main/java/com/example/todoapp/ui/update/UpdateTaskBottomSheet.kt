@@ -1,6 +1,7 @@
 package com.example.todoapp.ui.update
 
-import android.R
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,15 +11,20 @@ import android.widget.FrameLayout
 import com.example.todoapp.data.Task
 import com.example.todoapp.databinding.DialogUpdateTaskBinding
 import com.example.todoapp.ui.add.CallBack
+import com.example.todoapp.utils.hideKeyBoard
 import com.example.todoapp.utils.validateEditText
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 
 class UpdateTaskBottomSheet(private val callBack: CallBack) : BottomSheetDialogFragment() {
 
     private lateinit var task: Task
     private lateinit var binding: DialogUpdateTaskBinding
+    private var date = Date()
 
 
     companion object {
@@ -43,24 +49,67 @@ class UpdateTaskBottomSheet(private val callBack: CallBack) : BottomSheetDialogF
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUp()
+        setOnClickListener()
+    }
+
+    private fun setUp() {
         val myAdapter = ArrayAdapter(
             requireContext(),
-            R.layout.simple_spinner_item,
+            com.example.todoapp.R.layout.list_priority,
             resources.getStringArray(com.example.todoapp.R.array.priorities)
         )
-        myAdapter.setDropDownViewResource(android.R.layout.select_dialog_singlechoice)
-        binding.showPriority.adapter = myAdapter
+        binding.showPriority.setAdapter(myAdapter)
         setPropertyToDialog()
-        setOnClickListener()
     }
 
     private fun setPropertyToDialog() {
         binding.taskNameEdt.setText(task.title)
         binding.taskDescriptionEdt.setText(task.description)
-        binding.showTime.text = task.dueTime.toString()
+        binding.showTime.text = SimpleDateFormat(
+            "dd-MMM-yyyy HH:mm",
+            Locale.getDefault()
+        ).format(task.dueTime)
+        binding.showPriority.setText(task.priority, false)
+    }
+
+    private fun showDateTimePicker() {
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                val calendar = Calendar.getInstance()
+                calendar.set(year, month, dayOfMonth)
+                val timePickerDialog = TimePickerDialog(
+                    requireContext(),
+                    { _, hourOfDay, minute ->
+                        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                        calendar.set(Calendar.MINUTE, minute)
+                        date = calendar.time
+                        binding.showTime.text = SimpleDateFormat(
+                            "dd-MMM-yyyy HH:mm",
+                            Locale.getDefault()
+                        ).format(date)
+                    },
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    true
+                )
+                timePickerDialog.show()
+            },
+            Calendar.getInstance().get(Calendar.YEAR),
+            Calendar.getInstance().get(Calendar.MONTH),
+            Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+        )
+        datePickerDialog.show()
     }
 
     private fun setOnClickListener() {
+        // Show time picker
+        binding.showTime.apply {
+            setOnClickListener {
+                showDateTimePicker()
+            }
+        }
 
         // Save edit task
         val btnSave = binding.btnSave
@@ -68,19 +117,20 @@ class UpdateTaskBottomSheet(private val callBack: CallBack) : BottomSheetDialogF
             val edtName = binding.taskNameEdt
             val edtNameL = binding.taskNameLayout
             val edtDescription = binding.taskDescriptionEdt
-            val priority = when (binding.showPriority.selectedItemPosition) {
-                0 -> "High"
-                1 -> "Medium"
-                2 -> "Low"
-                else -> "High"
-            }
+            var priority = binding.showPriority.text.toString()
+            if (priority == "Priority")
+                priority = "High"
 
             if (validateEditText(edtName, edtNameL)) {
+                requireContext().hideKeyBoard(it)
                 callBack.save(
-                    edtName.text.toString(),
-                    edtDescription.text.toString(),
-                    Date(),
-                    priority
+                    Task(
+                        task.id,
+                        edtName.text.toString(),
+                        edtDescription.text.toString(),
+                        Date(),
+                        priority
+                    )
                 )
                 dismiss()
             }

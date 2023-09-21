@@ -11,4 +11,7 @@
         <item>Low</item>
     </string-array>
 
+    <string name="search_task">Search Task</string>
+    <string name="profile">Profile</string>
+
 </resources>

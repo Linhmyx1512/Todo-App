@@ -1,74 +1,83 @@
 package com.example.todoapp.adapters
 
+import android.graphics.Color
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.todoapp.R
 import com.example.todoapp.data.Task
+import com.example.todoapp.databinding.ItemTaskBinding
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class TaskRecyclerViewAdapter(
     private val deleteUpdateCallback: (type: String, position: Int, task: Task) -> Unit
 ) :
-    RecyclerView.Adapter<TaskRecyclerViewAdapter.ViewHolder>() {
+    ListAdapter<Task, TaskRecyclerViewAdapter.ViewHolder>(DiffCallback()) {
 
-    private val taskList: ArrayList<Task> = arrayListOf<Task>()
-
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val taskName: TextView = itemView.findViewById(R.id.task_name)
-        private val taskDescription: TextView = itemView.findViewById(R.id.task_description)
-        private val taskTime: TextView = itemView.findViewById(R.id.task_time)
-        private val taskPriority: TextView = itemView.findViewById(R.id.task_priority)
-        val btnDelete: ImageView = itemView.findViewById(R.id.btn_delete)
-        val btnEdit: ImageView = itemView.findViewById(R.id.btn_edit)
+    class ViewHolder(val itemTaskBinding: ItemTaskBinding) :
+        RecyclerView.ViewHolder(itemTaskBinding.root) {
 
         fun bind(task: Task) {
-            taskName.text = task.title
-            taskDescription.text = task.description
-            taskTime.text =
-                SimpleDateFormat("dd-MMM-yyyy HH:mm:ss", Locale.getDefault()).format(task.dueTime)
-            taskPriority.text = task.priority
+            itemTaskBinding.apply {
+                taskName.text = task.title
+                taskDescription.text = task.description
+                taskTime.text =
+                    SimpleDateFormat(
+                        "dd-MMM-yyyy HH:mm",
+                        Locale.getDefault()
+                    ).format(task.dueTime)
+                taskPriority.text = task.priority
+
+                val textColor = when (task.priority) {
+                    "High" -> Color.RED
+                    "Medium" -> Color.GREEN
+                    "Low" -> Color.BLUE
+                    else -> Color.RED
+                }
+                taskPriority.setTextColor(textColor)
+            }
 
         }
     }
 
-    fun addAllTask(newTaskList: List<Task>) {
-        taskList.clear()
-        taskList.addAll(newTaskList)
-        notifyDataSetChanged()
-    }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): ViewHolder {
         return ViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_task, parent, false)
+            ItemTaskBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false
+            )
         )
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val task = taskList[position]
+        val task = getItem(position)
         holder.bind(task)
-        holder.btnDelete.setOnClickListener {
+        holder.itemTaskBinding.btnDelete.setOnClickListener {
             if (holder.adapterPosition != -1) {
                 deleteUpdateCallback("delete", holder.adapterPosition, task)
             }
         }
-        holder.btnEdit.setOnClickListener {
+        holder.itemTaskBinding.btnEdit.setOnClickListener {
             if (holder.adapterPosition != -1) {
                 deleteUpdateCallback("update", holder.adapterPosition, task)
             }
         }
     }
 
-    override fun getItemCount(): Int {
-        return taskList.size
-    }
 
+    class DiffCallback : DiffUtil.ItemCallback<Task>() {
+        override fun areItemsTheSame(oldItem: Task, newItem: Task): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Task, newItem: Task): Boolean {
+            return oldItem == newItem
+        }
+
+    }
 }
