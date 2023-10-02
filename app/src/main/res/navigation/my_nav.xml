@@ -10,4 +10,14 @@
         android:name="com.example.todoapp.ui.task.AllTaskFragment"
         android:label="fragment_all_task"
         tools:layout="@layout/fragment_all_task" />
+    <fragment
+        android:id="@+id/calendarFragment"
+        android:name="com.example.todoapp.ui.calendar.CalendarFragment"
+        android:label="fragment_calendar"
+        tools:layout="@layout/fragment_calendar" />
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.todoapp.ui.profile.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" />
 </navigation>

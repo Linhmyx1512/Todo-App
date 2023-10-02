@@ -10,8 +10,15 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TaskDao {
 
-    @Query("SELECT * FROM Task ORDER BY dueTime DESC")
-    fun getTaskList(): Flow<List<Task>>
+    @Query(
+        """SELECT * FROM Task ORDER BY
+            CASE WHEN :isAcc == 1 THEN TaskTitle END ASC,
+            CASE WHEN :isAcc == 0 THEN TaskTitle END DESC""")
+    fun getTaskListSortByTaskTitle(isAcc: Boolean): Flow<List<Task>>@Query(
+        """SELECT * FROM Task ORDER BY
+            CASE WHEN :isAcc == 1 THEN dueTime END ASC,
+            CASE WHEN :isAcc == 0 THEN dueTime END DESC""")
+    fun getTaskListSortByTaskDueTime(isAcc: Boolean): Flow<List<Task>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTask(task: Task): Long
@@ -22,6 +29,6 @@ interface TaskDao {
     @Update
     suspend fun updateTask(task: Task): Int
 
-    @Query("UPDATE Task SET taskTitle=:title, description = :description, priority=:priority WHERE taskId = :taskId")
-    suspend fun updateTaskParticularField(taskId: String, title: String, description: String, priority: String): Int
+    @Query("SELECT * FROM Task WHERE taskTitle LIKE :query ORDER BY dueTime ASC")
+    fun searchTask(query: String): Flow<List<Task>>
 }

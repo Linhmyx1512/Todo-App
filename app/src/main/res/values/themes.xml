@@ -5,5 +5,12 @@
         <item name="backgroundColor">@color/white</item>
     </style>
 
+    <style name="SearchInputLayout" parent="">
+        <item name="endIconMode">clear_text</item>
+        <item name="errorIconDrawable">@null</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textCursorDrawable">@color/black</item>
+        <item name="startIconTint">@color/black</item>
+    </style>
 
 </resources>

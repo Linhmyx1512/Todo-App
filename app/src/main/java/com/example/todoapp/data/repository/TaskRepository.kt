@@ -29,18 +29,42 @@ class TaskRepository(application: Application) {
     val statusLiveData: LiveData<Resource<StatusResult>>
         get() = _statusLiveData
 
+    private val _sortByLiveData = MutableLiveData<Pair<String, Boolean>>().apply {
+        postValue(Pair("title", true))
+    }
+    val sortByLiveData: LiveData<Pair<String, Boolean>>
+        get() = _sortByLiveData
 
-    fun getTaskList() {
+    fun setSortBy(sort: Pair<String, Boolean>) {
+        _sortByLiveData.postValue(sort)
+    }
+    fun getTaskList(isAcc: Boolean, sortByName: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            _taskStateFlow.emit(Loading())
             try {
-                val result = taskDao.getTaskList()
+                _taskStateFlow.emit(Loading())
+                val result = if (sortByName == "title") {
+                    taskDao.getTaskListSortByTaskTitle(isAcc)
+                } else {
+                    taskDao.getTaskListSortByTaskDueTime(isAcc)
+                }
                 _taskStateFlow.emit(Success("Loading", result))
             } catch (e: Exception) {
                 _taskStateFlow.emit(Error(e.message.toString()))
             }
         }
 
+    }
+
+    fun searchTask(query: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                _taskStateFlow.emit(Loading())
+                val result = taskDao.searchTask("%${query}%")
+                _taskStateFlow.emit(Success("Loading", result))
+            } catch (e: Exception) {
+                _taskStateFlow.emit(Error(e.message.toString()))
+            }
+        }
     }
 
 
@@ -74,24 +98,6 @@ class TaskRepository(application: Application) {
             CoroutineScope(Dispatchers.IO).launch {
                 val result = taskDao.updateTask(task)
                 handleResult(result, "Updated Task Successfully", StatusResult.Updated)
-            }
-        } catch (e: Exception) {
-            _statusLiveData.postValue(Error(e.message.toString()))
-        }
-    }
-
-    fun updateTaskParticularField(
-        taskId: String,
-        title: String,
-        description: String,
-        priority: String
-    ) {
-        try {
-            _statusLiveData.postValue(Loading())
-            CoroutineScope(Dispatchers.IO).launch {
-                val result =
-                    taskDao.updateTaskParticularField(taskId, title, description, priority)
-                handleResult(result, "Insert Task Successfully", StatusResult.Added)
             }
         } catch (e: Exception) {
             _statusLiveData.postValue(Error(e.message.toString()))

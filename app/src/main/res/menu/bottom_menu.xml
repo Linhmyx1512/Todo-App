@@ -8,4 +8,8 @@
         android:id="@+id/calendarFragment"
         android:icon="@drawable/icon_calendar"
         android:title="@string/title_calendar" />
+    <item
+        android:id="@+id/profileFragment"
+        android:icon="@drawable/icon_profile"
+        android:title="@string/profile" />
 </menu>

@@ -1,6 +1,7 @@
 package com.example.todoapp.ui.update
 
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,6 +14,8 @@ import com.example.todoapp.databinding.DialogUpdateTaskBinding
 import com.example.todoapp.ui.add.CallBack
 import com.example.todoapp.utils.hideKeyBoard
 import com.example.todoapp.utils.validateEditText
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -25,6 +28,19 @@ class UpdateTaskBottomSheet(private val callBack: CallBack) : BottomSheetDialogF
     private lateinit var task: Task
     private lateinit var binding: DialogUpdateTaskBinding
     private var date = Date()
+
+    private lateinit var behavior: BottomSheetBehavior<*>
+    override fun onStart() {
+        super.onStart()
+        behavior.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+        behavior = dialog.behavior
+        behavior.skipCollapsed = true
+        return dialog
+    }
 
 
     companion object {
@@ -41,7 +57,7 @@ class UpdateTaskBottomSheet(private val callBack: CallBack) : BottomSheetDialogF
         dialog?.setOnShowListener {
             val frameLayout: FrameLayout? =
                 dialog?.findViewById(com.google.android.material.R.id.design_bottom_sheet)
-            frameLayout?.setBackgroundResource(android.R.color.background_light)
+            frameLayout?.setBackgroundResource(android.R.color.transparent)
         }
         binding = DialogUpdateTaskBinding.inflate(inflater, container, false)
         return binding.root

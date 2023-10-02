@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class TaskRecyclerViewAdapter(
-    private val deleteUpdateCallback: (type: String, position: Int, task: Task) -> Unit
+    private val updateCallback: (position: Int, task: Task) -> Unit
 ) :
     ListAdapter<Task, TaskRecyclerViewAdapter.ViewHolder>(DiffCallback()) {
 
@@ -57,14 +57,9 @@ class TaskRecyclerViewAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val task = getItem(position)
         holder.bind(task)
-        holder.itemTaskBinding.btnDelete.setOnClickListener {
+        holder.itemTaskBinding.task.setOnClickListener {
             if (holder.adapterPosition != -1) {
-                deleteUpdateCallback("delete", holder.adapterPosition, task)
-            }
-        }
-        holder.itemTaskBinding.btnEdit.setOnClickListener {
-            if (holder.adapterPosition != -1) {
-                deleteUpdateCallback("update", holder.adapterPosition, task)
+                updateCallback( holder.adapterPosition, task)
             }
         }
     }
