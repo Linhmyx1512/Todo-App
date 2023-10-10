@@ -1,7 +1,6 @@
 package com.example.todoapp.ui.task
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,14 +13,8 @@ import com.example.todoapp.data.Task
 import com.example.todoapp.databinding.FragmentOnProgressBinding
 import com.example.todoapp.ui.add.CallBack
 import com.example.todoapp.ui.update.UpdateTaskBottomSheet
-import com.example.todoapp.utils.Status
-import com.example.todoapp.utils.longToastShow
 import com.example.todoapp.viewmodels.TaskViewModel
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 
 class OnProgressFragment : Fragment() {
@@ -60,7 +53,6 @@ class OnProgressFragment : Fragment() {
 
             }
         })
-
         swipeToDeleteTask()
         callGetTaskList()
 
@@ -86,24 +78,8 @@ class OnProgressFragment : Fragment() {
         snackBar.show()
     }
     private fun callGetTaskList() {
-        CoroutineScope(Dispatchers.Main).launch {
-            taskViewModel.taskStateFlow.collectLatest {
-                Log.d("status", it.status.toString())
-                when (it.status) {
-                    Status.LOADING -> {
-                    }
-
-                    Status.SUCCESS -> {
-                        it.data?.collect { taskList ->
-                            taskRecyclerViewAdapter.submitList(taskList)
-                        }
-                    }
-
-                    Status.ERROR -> {
-                        it.message?.let { it1 -> requireContext().longToastShow(it1) }
-                    }
-                }
-            }
+        taskViewModel.getAllTasks().observe(viewLifecycleOwner) {
+            taskRecyclerViewAdapter.submitList(it)
         }
     }
 

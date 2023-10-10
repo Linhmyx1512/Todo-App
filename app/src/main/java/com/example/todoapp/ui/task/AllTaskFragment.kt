@@ -3,7 +3,6 @@ package com.example.todoapp.ui.task
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,13 +15,7 @@ import com.example.todoapp.data.Task
 import com.example.todoapp.databinding.FragmentAllTaskBinding
 import com.example.todoapp.ui.add.AddTaskBottomSheet
 import com.example.todoapp.ui.add.CallBack
-import com.example.todoapp.utils.Status
-import com.example.todoapp.utils.StatusResult
-import com.example.todoapp.utils.StatusResult.Added
-import com.example.todoapp.utils.StatusResult.Deleted
-import com.example.todoapp.utils.StatusResult.Updated
 import com.example.todoapp.utils.hideKeyBoard
-import com.example.todoapp.utils.longToastShow
 import com.example.todoapp.viewmodels.TaskViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
@@ -57,10 +50,7 @@ class AllTaskFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         taskBinding = FragmentAllTaskBinding.bind(view)
         initTaskPagerAdapter()
-        callSortByLiveData()
-        statusCallback()
         setOnClickListener()
-
     }
 
     private fun initTaskPagerAdapter() {
@@ -76,11 +66,7 @@ class AllTaskFragment : Fragment() {
             }
         }.attach()
     }
-    private fun callSortByLiveData() {
-        taskViewModel.sortByLiveData.observe(viewLifecycleOwner) {
-            taskViewModel.getTaskList(it.second, it.first)
-        }
-    }
+
 
     private fun callSortByDialog() {
         var checkedItem = 0
@@ -116,43 +102,6 @@ class AllTaskFragment : Fragment() {
         }
     }
 
-    private fun statusCallback() {
-        taskViewModel
-            .statusLiveData
-            .observe(viewLifecycleOwner) {
-                when (it.status) {
-                    Status.LOADING -> {
-                    }
-
-                    Status.SUCCESS -> {
-                        when (it.data as StatusResult) {
-                            Added -> {
-                                Log.d("StatusResult", "Added")
-                            }
-
-                            Deleted -> {
-                                Log.d("StatusResult", "Deleted")
-                            }
-
-                            Updated -> {
-                                Log.d("StatusResult", "Updated")
-                            }
-                        }
-                        it.message?.let { it1 ->
-                            if (it1 != "Deleted Task Successfully")
-                                requireContext().longToastShow(it1)
-                        }
-                    }
-
-                    Status.ERROR -> {
-                        it.message?.let { it1 ->
-                            requireContext().longToastShow(it1)
-                        }
-                    }
-                }
-            }
-    }
-
 
     private fun setOnClickListener() {
 
@@ -183,7 +132,7 @@ class AllTaskFragment : Fragment() {
                     if (query.toString().isNotEmpty()) {
                         taskViewModel.searchTask(query.toString())
                     } else {
-                        callSortByLiveData()
+                        taskViewModel.setSortBy(Pair("title", true))
                     }
                 }
             })
