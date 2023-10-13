@@ -9,7 +9,7 @@ import com.example.todoapp.data.TaskDatabase
 class TaskRepository(application: Application) {
     private val taskDao: TaskDao = TaskDatabase.getInstance(application).taskDao
     fun getAllTasks() = taskDao.getAllTasks()
-    fun setSortBy(sort: Pair<String, Boolean>): LiveData<List<Task>> {
+    fun setSortBy(sort: Pair<String, Boolean>): List<Task> {
         return when (sort.first) {
             "title" -> taskDao.getTaskListSortByTaskTitle(sort.second)
             "date" -> taskDao.getTaskListSortByTaskDueTime(sort.second)

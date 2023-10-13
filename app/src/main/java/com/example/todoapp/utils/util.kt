@@ -11,17 +11,6 @@ import com.google.android.material.textfield.TextInputLayout
 import java.util.Calendar
 import java.util.Date
 
-enum class Status {
-    SUCCESS,
-    ERROR,
-    LOADING
-}
-
-enum class StatusResult {
-    Added,
-    Updated,
-    Deleted
-}
 
 fun Context.hideKeyBoard(view: View) {
     try {

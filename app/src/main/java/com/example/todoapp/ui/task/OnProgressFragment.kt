@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todoapp.adapters.TaskRecyclerViewAdapter
@@ -22,9 +22,7 @@ class OnProgressFragment : Fragment() {
     private lateinit var taskRecyclerViewAdapter: TaskRecyclerViewAdapter
     private lateinit var binding: FragmentOnProgressBinding
 
-    private val taskViewModel: TaskViewModel by lazy {
-        ViewModelProvider(requireActivity())[TaskViewModel::class.java]
-    }
+    private val taskViewModel: TaskViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,6 +45,7 @@ class OnProgressFragment : Fragment() {
                 super.onItemRangeInserted(positionStart, itemCount)
                 binding.listTask.smoothScrollToPosition(positionStart)
             }
+
             override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
                 super.onItemRangeMoved(fromPosition, toPosition, itemCount)
                 binding.listTask.smoothScrollToPosition(0)
@@ -67,6 +66,7 @@ class OnProgressFragment : Fragment() {
             }).show(this.childFragmentManager, "Show update task dialog")
         }
     }
+
     private fun restoreDeletedTask(deletedTask: Task) {
         val snackBar = Snackbar.make(
             binding.root, "Deleted '${deletedTask.title}'",
@@ -77,8 +77,10 @@ class OnProgressFragment : Fragment() {
         }
         snackBar.show()
     }
+
     private fun callGetTaskList() {
-        taskViewModel.getAllTasks().observe(viewLifecycleOwner) {
+        taskViewModel.getAllTasks()
+        taskViewModel.tasks.observe(viewLifecycleOwner) {
             taskRecyclerViewAdapter.submitList(it)
         }
     }

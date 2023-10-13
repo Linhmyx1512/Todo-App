@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.example.todoapp.adapters.TaskPagerAdapter
 import com.example.todoapp.data.Task
@@ -32,9 +32,7 @@ class AllTaskFragment : Fragment() {
         CompletedFragment()
     )
 
-    private val taskViewModel: TaskViewModel by lazy {
-        ViewModelProvider(this)[TaskViewModel::class.java]
-    }
+    private val taskViewModel: TaskViewModel by activityViewModels()
 
 
     override fun onCreateView(
