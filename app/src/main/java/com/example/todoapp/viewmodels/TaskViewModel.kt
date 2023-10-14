@@ -1,6 +1,7 @@
 package com.example.todoapp.viewmodels
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -41,8 +42,10 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateTask(task: Task) = viewModelScope.launch {
-        taskRepository.updateTask(task)
-        getAllTasks()
+        Log.e("xxxx", "updateTask: ${taskRepository.updateTask(task)}", )
+        if (taskRepository.updateTask(task) != -1) {
+            getAllTasks()
+        }
     }
 
     fun searchTask(query: String) = viewModelScope.launch {

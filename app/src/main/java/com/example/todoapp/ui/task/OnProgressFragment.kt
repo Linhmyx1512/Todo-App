@@ -1,6 +1,7 @@
 package com.example.todoapp.ui.task
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -87,6 +88,7 @@ class OnProgressFragment : Fragment() {
         taskViewModel.getAllTasks()
         taskViewModel.tasks.observe(viewLifecycleOwner) {
             taskRecyclerViewAdapter.submitList(it)
+            Log.e("xxxx", "callGetTaskList: ${it.joinToString { task -> task.title + " " + task.isDone }}", )
         }
     }
 

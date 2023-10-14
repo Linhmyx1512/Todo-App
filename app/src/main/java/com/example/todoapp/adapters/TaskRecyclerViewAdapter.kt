@@ -8,8 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todoapp.data.Task
 import com.example.todoapp.databinding.ItemTaskBinding
-import java.text.SimpleDateFormat
-import java.util.Locale
+import com.example.todoapp.utils.format
 
 class TaskRecyclerViewAdapter(
     private val updateCallback: (type: String, position: Int, task: Task) -> Unit
@@ -23,11 +22,7 @@ class TaskRecyclerViewAdapter(
             itemTaskBinding.apply {
                 taskName.text = task.title
                 taskDescription.text = task.description
-                taskTime.text =
-                    SimpleDateFormat(
-                        "dd-MMM-yyyy HH:mm",
-                        Locale.getDefault()
-                    ).format(task.dueTime)
+                taskTime.text = task.dueTime.format() // https://kotlinlang.org/docs/extensions.html#extensions-are-resolved-statically
                 taskPriority.text = task.priority
 
                 val textColor = when (task.priority) {
@@ -64,13 +59,16 @@ class TaskRecyclerViewAdapter(
         holder.bind(task)
         holder.itemTaskBinding.taskLayout.setOnClickListener {
             if (holder.adapterPosition != -1) {
-                updateCallback("update", holder.adapterPosition, task)
+                updateCallback.invoke("update", holder.adapterPosition, task) // hard code - nên tạo 1 enum
             }
         }
-        holder.itemTaskBinding.taskCheckbox.setOnCheckedChangeListener { _, isChecked ->
+        holder.itemTaskBinding.taskCheckbox.setOnClickListener {
             if (holder.adapterPosition != -1) {
-                task.isDone = isChecked
-                updateCallback("complete", holder.adapterPosition, task)
+                updateCallback.invoke(
+                    "complete",
+                    holder.adapterPosition,
+                    task.copy(isDone = !task.isDone),
+                )
 
             }
         }
