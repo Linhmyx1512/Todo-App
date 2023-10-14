@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class TaskRecyclerViewAdapter(
-    private val updateCallback: (position: Int, task: Task) -> Unit
+    private val updateCallback: (type: String, position: Int, task: Task) -> Unit
 ) :
     ListAdapter<Task, TaskRecyclerViewAdapter.ViewHolder>(DiffCallback()) {
 
@@ -31,14 +31,19 @@ class TaskRecyclerViewAdapter(
                 taskPriority.text = task.priority
 
                 val textColor = when (task.priority) {
-                    "High" -> Color.RED
-                    "Medium" -> Color.GREEN
+                    "Medium" -> Color.parseColor("#bcc906")
                     "Low" -> Color.BLUE
                     else -> Color.RED
                 }
                 taskPriority.setTextColor(textColor)
+                taskCheckbox.isChecked = task.isDone
+                val backgroundColor = if (task.isDone) {
+                    Color.parseColor("#5fed66")
+                } else {
+                    Color.WHITE
+                }
+                taskLayout.setBackgroundColor(backgroundColor)
             }
-
         }
     }
 
@@ -57,9 +62,16 @@ class TaskRecyclerViewAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val task = getItem(position)
         holder.bind(task)
-        holder.itemTaskBinding.task.setOnClickListener {
+        holder.itemTaskBinding.taskLayout.setOnClickListener {
             if (holder.adapterPosition != -1) {
-                updateCallback( holder.adapterPosition, task)
+                updateCallback("update", holder.adapterPosition, task)
+            }
+        }
+        holder.itemTaskBinding.taskCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            if (holder.adapterPosition != -1) {
+                task.isDone = isChecked
+                updateCallback("complete", holder.adapterPosition, task)
+
             }
         }
     }
@@ -69,6 +81,7 @@ class TaskRecyclerViewAdapter(
         override fun areItemsTheSame(oldItem: Task, newItem: Task): Boolean {
             return oldItem.id == newItem.id
         }
+
         override fun areContentsTheSame(oldItem: Task, newItem: Task): Boolean {
             return oldItem == newItem
         }

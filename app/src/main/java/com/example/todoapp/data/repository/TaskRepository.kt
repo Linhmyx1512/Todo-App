@@ -19,6 +19,7 @@ class TaskRepository(application: Application) {
 
     fun searchTask(query: String): LiveData<List<Task>> = taskDao.searchTask("%${query}%")
     suspend fun insertTask(task: Task) = taskDao.insertTask(task)
-    suspend fun deleteTask(taskId: Int) = taskDao.deleteTask(taskId)
+    suspend fun deleteTask(task: Task) = taskDao.deleteTask(task)
     suspend fun updateTask(task: Task) = taskDao.updateTask(task)
+
 }

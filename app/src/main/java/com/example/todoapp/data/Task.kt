@@ -17,5 +17,6 @@ data class Task(
     var title: String,
     val description: String,
     val dueTime: Date,
-    val priority: String
+    val priority: String,
+    var isDone: Boolean = false
 ):Parcelable

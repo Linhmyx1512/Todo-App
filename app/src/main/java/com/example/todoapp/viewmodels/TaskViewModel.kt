@@ -14,8 +14,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     private val taskRepository = TaskRepository(application)
 
     private val _tasks: MutableLiveData<List<Task>> = MutableLiveData()
-    val tasks: LiveData<List<Task>> = _tasks
-
+    val tasks: LiveData<List<Task>>
+        get() = _tasks
 
     fun setSortBy(sort: Pair<String, Boolean>) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -35,12 +35,14 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun deleteTask(taskId: Int) = viewModelScope.launch {
-        taskRepository.deleteTask(taskId)
+    fun deleteTask(task: Task) = viewModelScope.launch {
+        taskRepository.deleteTask(task)
+        getAllTasks()
     }
 
     fun updateTask(task: Task) = viewModelScope.launch {
         taskRepository.updateTask(task)
+        getAllTasks()
     }
 
     fun searchTask(query: String) = viewModelScope.launch {

@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.TimePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -111,7 +112,6 @@ class AddTaskBottomSheet(private val callBack: CallBack) : BottomSheetDialogFrag
             setOnClickListener {
                 showDateTimePicker()
             }
-
         }
 
         // Save new task
@@ -119,10 +119,10 @@ class AddTaskBottomSheet(private val callBack: CallBack) : BottomSheetDialogFrag
             val edtName = binding.taskNameEdt
             val edtNameL = binding.taskNameLayout
             val edtDescription = binding.taskDescriptionEdt
-            val priority = if (binding.showPriority.isSelected) {
-                binding.showPriority.text.toString()
+            val priority = if (binding.showPriority.text.toString() == "Priority") {
+                "Low"
             } else {
-                "High"
+                binding.showPriority.text.toString()
             }
             if (validateEditText(edtName, edtNameL)) {
                 requireContext().hideKeyBoard(it)

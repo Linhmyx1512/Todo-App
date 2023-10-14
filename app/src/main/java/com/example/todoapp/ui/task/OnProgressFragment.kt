@@ -58,12 +58,17 @@ class OnProgressFragment : Fragment() {
     }
 
     private fun setUpTaskRecyclerViewAdapter() {
-        taskRecyclerViewAdapter = TaskRecyclerViewAdapter { _, inputTask ->
-            UpdateTaskBottomSheet.newInstance(inputTask, object : CallBack {
-                override fun save(task: Task) {
-                    taskViewModel.updateTask(task)
-                }
-            }).show(this.childFragmentManager, "Show update task dialog")
+        taskRecyclerViewAdapter = TaskRecyclerViewAdapter { type, _, inputTask ->
+            if (type == "update") {
+                UpdateTaskBottomSheet.newInstance(inputTask, object : CallBack {
+                    override fun save(task: Task) {
+                        taskViewModel.updateTask(task)
+                    }
+                }).show(this.childFragmentManager, "Show update task dialog")
+            }
+            if (type == "complete") {
+                taskViewModel.updateTask(inputTask)
+            }
         }
     }
 
@@ -97,7 +102,7 @@ class OnProgressFragment : Fragment() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 val task = taskRecyclerViewAdapter.currentList[position]
-                taskViewModel.deleteTask(task.id)
+                taskViewModel.deleteTask(task)
                 restoreDeletedTask(task)
             }
         }).attachToRecyclerView(binding.listTask)
