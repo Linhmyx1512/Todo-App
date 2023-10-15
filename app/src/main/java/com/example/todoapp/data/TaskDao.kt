@@ -32,6 +32,11 @@ interface TaskDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTask(task: Task): Long
 
+    @Query("SELECT * FROM Task WHERE isDone = 0")
+    fun getNotDoneTaskList(): List<Task>
+    @Query("SELECT * FROM Task WHERE isDone = 1")
+    fun getDoneTaskList(): List<Task>
+
     @Delete
     suspend fun deleteTask(task: Task)
 

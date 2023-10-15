@@ -9,6 +9,10 @@ import com.example.todoapp.data.TaskDatabase
 class TaskRepository(application: Application) {
     private val taskDao: TaskDao = TaskDatabase.getInstance(application).taskDao
     fun getAllTasks() = taskDao.getAllTasks()
+
+    fun getNotDoneTaskList(): List<Task> = taskDao.getNotDoneTaskList()
+    fun getDoneTaskList(): List<Task> = taskDao.getDoneTaskList()
+
     fun setSortBy(sort: Pair<String, Boolean>): List<Task> {
         return when (sort.first) {
             "title" -> taskDao.getTaskListSortByTaskTitle(sort.second)

@@ -3,11 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/my_nav"
-    app:startDestination="@id/allTaskFragment">
+    app:startDestination="@id/homeFragment">
 
     <fragment
-        android:id="@+id/allTaskFragment"
-        android:name="com.example.todoapp.ui.task.AllTaskFragment"
+        android:id="@+id/homeFragment"
+        android:name="com.example.todoapp.ui.task.HomeFragment"
         android:label="fragment_all_task"
         tools:layout="@layout/fragment_all_task" />
     <fragment

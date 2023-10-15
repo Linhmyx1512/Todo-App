@@ -1,148 +1,112 @@
 package com.example.todoapp.ui.task
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.viewpager2.widget.ViewPager2
-import com.example.todoapp.adapters.TaskPagerAdapter
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
+import com.example.todoapp.adapters.TaskRecyclerViewAdapter
 import com.example.todoapp.data.Task
 import com.example.todoapp.databinding.FragmentAllTaskBinding
-import com.example.todoapp.ui.add.AddTaskBottomSheet
 import com.example.todoapp.ui.add.CallBack
-import com.example.todoapp.utils.hideKeyBoard
+import com.example.todoapp.ui.update.UpdateTaskBottomSheet
 import com.example.todoapp.viewmodels.TaskViewModel
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
+import com.google.android.material.snackbar.Snackbar
 
 
 class AllTaskFragment : Fragment() {
 
-    private lateinit var taskBinding: FragmentAllTaskBinding
-    private lateinit var tabLayout: TabLayout
-    private lateinit var viewPager: ViewPager2
-    private val fragmentList = listOf(
-        OnProgressFragment(),
-        CompletedFragment()
-    )
+    private lateinit var taskRecyclerViewAdapter: TaskRecyclerViewAdapter
+    private lateinit var binding: FragmentAllTaskBinding
 
     private val taskViewModel: TaskViewModel by activityViewModels()
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        taskBinding = FragmentAllTaskBinding.inflate(layoutInflater, container, false)
-
-        return taskBinding.root
+        binding = FragmentAllTaskBinding.inflate(layoutInflater, container, false)
+        return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        taskBinding = FragmentAllTaskBinding.bind(view)
-        initTaskPagerAdapter()
-        setOnClickListener()
-    }
 
-    private fun initTaskPagerAdapter() {
-        tabLayout = taskBinding.tabLayout
-        viewPager = taskBinding.viewPager.apply {
-            adapter = TaskPagerAdapter(this@AllTaskFragment, fragmentList)
-            isUserInputEnabled = false
-        }
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            when (position) {
-                0 -> tab.text = "On Progress"
-                1 -> tab.text = "Completed Tasks"
+        setUpTaskRecyclerViewAdapter()
+        binding.listTask.adapter = taskRecyclerViewAdapter
+
+        taskRecyclerViewAdapter.registerAdapterDataObserver(object :
+            RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                binding.listTask.smoothScrollToPosition(positionStart)
             }
-        }.attach()
+
+            override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
+                super.onItemRangeMoved(fromPosition, toPosition, itemCount)
+                binding.listTask.smoothScrollToPosition(0)
+
+            }
+        })
+        swipeToDeleteTask()
+        callGetTaskList()
+
     }
 
-
-    private fun callSortByDialog() {
-        var checkedItem = 0
-        val items =
-            arrayOf("Title Ascending", "Title Descending", "Date Ascending", "Date Descending")
-        taskBinding.iconSort.setOnClickListener {
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Sort By")
-                .setPositiveButton("Ok") { _, _ ->
-                    when (checkedItem) {
-                        0 -> {
-                            taskViewModel.setSortBy(Pair("title", true))
-                        }
-
-                        1 -> {
-                            taskViewModel.setSortBy(Pair("title", false))
-                        }
-
-                        2 -> {
-                            taskViewModel.setSortBy(Pair("date", true))
-                        }
-
-                        else -> {
-                            taskViewModel.setSortBy(Pair("date", false))
-                        }
+    private fun setUpTaskRecyclerViewAdapter() {
+        taskRecyclerViewAdapter = TaskRecyclerViewAdapter { type, _, inputTask ->
+            if (type == "update") {
+                UpdateTaskBottomSheet.newInstance(inputTask, object : CallBack {
+                    override fun save(task: Task) {
+                        taskViewModel.updateTask(task)
                     }
-                }
-                .setSingleChoiceItems(items, checkedItem) { _, selectedItemIndex ->
-                    checkedItem = selectedItemIndex
-                }
-                .setCancelable(false)
-                .show()
-        }
-    }
-
-
-    private fun setOnClickListener() {
-
-        // Press btn add to show dialog add new task
-        taskBinding.btnAdd.setOnClickListener {
-            AddTaskBottomSheet(object : CallBack {
-                override fun save(task: Task) {
-                    requireContext().hideKeyBoard(it)
-                    taskViewModel.insertTask(task)
-                }
-            }).show(childFragmentManager, "Show dialog add task")
-        }
-
-        // Search task
-        taskBinding.searchBar.apply {
-            addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-                override fun afterTextChanged(query: Editable) {
-                    if (query.toString().isNotEmpty()) {
-                        taskViewModel.searchTask(query.toString())
-                    } else {
-                        taskViewModel.setSortBy(Pair("title", true))
-                    }
-                }
-            })
-
-            setOnEditorActionListener { v, actionId, _ ->
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    requireContext().hideKeyBoard(v)
-                    return@setOnEditorActionListener true
-                }
-                false
+                }).show(this.childFragmentManager, "Show update task dialog")
+            }
+            if (type == "complete") {
+                taskViewModel.updateTask(inputTask)
             }
         }
-        callSortByDialog()
+    }
+
+    private fun restoreDeletedTask(deletedTask: Task) {
+        val snackBar = Snackbar.make(
+            binding.root, "Deleted '${deletedTask.title}'",
+            Snackbar.LENGTH_LONG
+        )
+        snackBar.setAction("Undo") {
+            taskViewModel.insertTask(deletedTask)
+        }
+        snackBar.show()
+    }
+
+    private fun callGetTaskList() {
+        taskViewModel.getAllTasks()
+        taskViewModel.tasks.observe(viewLifecycleOwner) {
+            taskRecyclerViewAdapter.submitList(it)
+//            Log.e("xxxx", "callGetTaskList: ${it.joinToString { task -> task.title + " " + task.isDone }}" )
+        }
+    }
+
+    private fun swipeToDeleteTask() {
+        ItemTouchHelper(object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val task = taskRecyclerViewAdapter.currentList[position]
+                taskViewModel.deleteTask(task)
+                restoreDeletedTask(task)
+            }
+        }).attachToRecyclerView(binding.listTask)
     }
 }

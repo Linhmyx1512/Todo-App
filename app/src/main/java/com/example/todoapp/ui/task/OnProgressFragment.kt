@@ -54,7 +54,7 @@ class OnProgressFragment : Fragment() {
             }
         })
         swipeToDeleteTask()
-        callGetTaskList()
+        callGetNotDoneTaskList()
 
     }
 
@@ -84,11 +84,11 @@ class OnProgressFragment : Fragment() {
         snackBar.show()
     }
 
-    private fun callGetTaskList() {
-        taskViewModel.getAllTasks()
-        taskViewModel.tasks.observe(viewLifecycleOwner) {
+    private fun callGetNotDoneTaskList() {
+        taskViewModel.getNotDoneTasks()
+        taskViewModel.notDoneTasks.observe(viewLifecycleOwner) {
             taskRecyclerViewAdapter.submitList(it)
-            Log.e("xxxx", "callGetTaskList: ${it.joinToString { task -> task.title + " " + task.isDone }}", )
+            Log.e("xxxx", "callGetTaskList: ${it.joinToString { task -> task.title + " " + task.isDone }}" )
         }
     }
 

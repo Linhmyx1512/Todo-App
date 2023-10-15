@@ -26,14 +26,14 @@ class TaskRecyclerViewAdapter(
                 taskPriority.text = task.priority
 
                 val textColor = when (task.priority) {
-                    "Medium" -> Color.parseColor("#bcc906")
+                    "Medium" -> Color.parseColor("#B8A30C")
                     "Low" -> Color.BLUE
                     else -> Color.RED
                 }
                 taskPriority.setTextColor(textColor)
                 taskCheckbox.isChecked = task.isDone
                 val backgroundColor = if (task.isDone) {
-                    Color.parseColor("#5fed66")
+                    Color.parseColor("#83FA8A")
                 } else {
                     Color.WHITE
                 }
