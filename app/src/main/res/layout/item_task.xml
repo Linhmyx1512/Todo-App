@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    android:background="@android:color/holo_green_light"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
@@ -15,7 +14,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/task_bg"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_margin="8dp">
 
 
@@ -24,7 +23,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/task_priority"
+            app:layout_constraintStart_toStartOf="@id/task_priority"
             app:layout_constraintTop_toTopOf="@id/task_name" />
 
 
@@ -35,6 +35,7 @@
             android:layout_marginHorizontal="8dp"
             android:layout_marginTop="8dp"
             android:fontFamily="@font/open_sans"
+            android:textStyle="bold"
             android:text="@string/app_name"
             android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
             app:layout_constraintStart_toStartOf="parent"
@@ -45,6 +46,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
+            android:layout_marginStart="24dp"
             android:layout_marginTop="8dp"
             android:text="@string/app_name"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
@@ -55,20 +57,25 @@
             android:id="@+id/icon_clock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@id/task_time"
             android:src="@drawable/icon_clock"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/task_time" />
 
-        <TextView
+
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/task_time"
-            style="@style/TextAppearance.Material3.TitleMedium"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="Time"
+            android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/icon_clock"
-            app:layout_constraintTop_toBottomOf="@id/task_description" />
+            app:layout_constraintTop_toBottomOf="@id/task_description"
+            android:background="@drawable/rounded_frame"
+            android:backgroundTint="#efe1f0"
+
+            android:padding="6dp"
+            android:text="Time" />
 
         <TextView
             android:id="@+id/task_priority"
@@ -76,6 +83,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
+            app:layout_constraintBottom_toBottomOf="@id/task_time"
             android:text="Priority"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"

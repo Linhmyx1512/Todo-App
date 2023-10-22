@@ -13,5 +13,8 @@
 
     <string name="search_task">Search Task</string>
     <string name="profile">Profile</string>
+    <string name="Overview">Task Overview</string>
+    <string name="Done">Done</string>
+    <string name="notDone">Not Done</string>
 
 </resources>

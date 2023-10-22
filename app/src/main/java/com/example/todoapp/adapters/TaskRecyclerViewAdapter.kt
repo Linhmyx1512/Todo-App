@@ -33,11 +33,12 @@ class TaskRecyclerViewAdapter(
                 taskPriority.setTextColor(textColor)
                 taskCheckbox.isChecked = task.isDone
                 val backgroundColor = if (task.isDone) {
-                    Color.parseColor("#83FA8A")
+                    Color.parseColor("#97f089")
                 } else {
                     Color.WHITE
                 }
-                taskLayout.setBackgroundColor(backgroundColor)
+//                taskLayout.setBackgroundColor(backgroundColor)
+                taskLayout.setCardBackgroundColor(backgroundColor)
             }
         }
     }
@@ -59,12 +60,12 @@ class TaskRecyclerViewAdapter(
         holder.bind(task)
         holder.itemTaskBinding.taskLayout.setOnClickListener {
             if (holder.adapterPosition != -1) {
-                updateCallback.invoke("update", holder.adapterPosition, task) // hard code - nên tạo 1 enum
+                updateCallback("update", holder.adapterPosition, task) // hard code - nên tạo 1 enum
             }
         }
         holder.itemTaskBinding.taskCheckbox.setOnClickListener {
             if (holder.adapterPosition != -1) {
-                updateCallback.invoke(
+                updateCallback(
                     "complete",
                     holder.adapterPosition,
                     task.copy(isDone = !task.isDone),

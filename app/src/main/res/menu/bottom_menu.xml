@@ -4,10 +4,10 @@
         android:id="@+id/homeFragment"
         android:icon="@drawable/icon_home"
         android:title="@string/title_home" />
-    <item
-        android:id="@+id/calendarFragment"
-        android:icon="@drawable/icon_calendar"
-        android:title="@string/title_calendar" />
+<!--    <item-->
+<!--        android:id="@+id/calendarFragment"-->
+<!--        android:icon="@drawable/icon_calendar"-->
+<!--        android:title="@string/title_calendar" />-->
     <item
         android:id="@+id/profileFragment"
         android:icon="@drawable/icon_profile"

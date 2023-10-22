@@ -6,7 +6,7 @@ import java.util.Locale
 
 fun Date.format(): String {
     return SimpleDateFormat(
-        "dd-MMM-yyyy HH:mm",
+        "dd/MM/yyyy HH:mm",
         Locale.getDefault()
     ).format(this)
 }
